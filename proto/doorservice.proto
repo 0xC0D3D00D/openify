@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package doorservice;
+
+service DoorService {
+  rpc UpdateState(UpdateStateRequest) returns(UpdateStateResponse) {}
+  rpc AccessStream(AccessStreamRequest) returns(stream AccessStreamResponse) {}
+}
+
+enum DoorState { OPEN = 0; CLOSE = 1; }
+
+message UpdateStateRequest {
+  DoorState state = 1;
+  int64 serial = 2;
+}
+
+message UpdateStateResponse {}
+
+message AccessStreamRequest { int64 serial = 1; }
+
+message AccessStreamResponse { bool OpenDoor = 1; }

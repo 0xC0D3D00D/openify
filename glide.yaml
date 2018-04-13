@@ -1,0 +1,14 @@
+package: github.com/0xc0ded00d/openify
+import:
+- package: github.com/golang/protobuf
+  version: ^1.0.0
+  subpackages:
+  - proto
+- package: golang.org/x/net
+  subpackages:
+  - context
+- package: google.golang.org/grpc
+  version: ^1.11.3
+  subpackages:
+  - reflection
+- package: github.com/lib/pq
