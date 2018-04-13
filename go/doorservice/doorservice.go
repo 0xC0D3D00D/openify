@@ -53,16 +53,16 @@ func (s *grpcServer) AccessStream(in *doorservicepb.AccessStreamRequest, streamS
 			return err
 		}
 	}
-	return nil
 }
 
-type OpenDoorError int16
+type openDoorError int16
 
+// Door service possible errors
 const (
-	Error_InvalidRequest      = 400
-	Error_InternalServerError = 500
-	Error_DoorIsInaccessible  = 503
-	Error_Success             = 0
+	ErrorInvalidRequest      = 400
+	ErrorInternalServerError = 500
+	ErrorDoorIsInaccessible  = 503
+	ErrorSuccess             = 0
 )
 
 type openDoorRequest struct {
@@ -71,7 +71,7 @@ type openDoorRequest struct {
 }
 type openDoorResponse struct {
 	Success bool          `json:"success"`
-	Code    OpenDoorError `json:"error_code,omitempty"`
+	Code    openDoorError `json:"error_code,omitempty"`
 	Err     string        `json:"error,omitempty"`
 }
 
@@ -83,14 +83,14 @@ func openDoorApi(w http.ResponseWriter, r *http.Request) {
 	err := json.Unmarshal(buf.Bytes(), parsedReq)
 	if err != nil || parsedReq.DoorSerial == 0 || parsedReq.UserId == 0 {
 		log.Println(err)
-		errorResp, _ := json.Marshal(openDoorResponse{Success: false, Code: Error_InvalidRequest, Err: "Invalid Request"})
+		errorResp, _ := json.Marshal(openDoorResponse{Success: false, Code: ErrorInvalidRequest, Err: "Invalid Request"})
 		w.WriteHeader(400)
 		w.Write(errorResp)
 		return
 	}
 
 	if _, present := doorChannels[parsedReq.DoorSerial]; !present {
-		errorResp, _ := json.Marshal(openDoorResponse{Success: false, Code: Error_DoorIsInaccessible, Err: "Door is inaccessible"})
+		errorResp, _ := json.Marshal(openDoorResponse{Success: false, Code: ErrorDoorIsInaccessible, Err: "Door is inaccessible"})
 		w.WriteHeader(503)
 		w.Write(errorResp)
 		return
@@ -106,7 +106,7 @@ func openDoorApi(w http.ResponseWriter, r *http.Request) {
 	}
 	err = db.StoreAccessLog(accessLog)
 	if err != nil {
-		errorResp, _ := json.Marshal(openDoorResponse{Success: false, Code: Error_InternalServerError, Err: "Internal Server Error"})
+		errorResp, _ := json.Marshal(openDoorResponse{Success: false, Code: ErrorInternalServerError, Err: "Internal Server Error"})
 		w.WriteHeader(500)
 		w.Write(errorResp)
 		return

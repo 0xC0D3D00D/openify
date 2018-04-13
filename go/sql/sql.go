@@ -4,13 +4,16 @@ import (
 	"database/sql"
 
 	doorservicepb "github.com/0xc0d3d00d/openify/go/proto/doorservice"
+	// Postgresql driver for database/sql
 	_ "github.com/lib/pq"
 )
 
+// Represents SQL database connection
 type Sql struct {
 	db *sql.DB
 }
 
+// Creates a new Sql instance
 func New() (*Sql, error) {
 	sqlInstance := &Sql{}
 	db, err := sql.Open("postgres", "postgres://openify@localhost:26257/openify?sslmode=disable")
@@ -21,6 +24,7 @@ func New() (*Sql, error) {
 	return sqlInstance, nil
 }
 
+// Represents an access log to store in database
 type AccessLog struct {
 	DoorId int64
 	State  doorservicepb.DoorState
