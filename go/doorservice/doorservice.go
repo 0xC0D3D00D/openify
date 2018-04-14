@@ -26,6 +26,8 @@ func init() {
 	if err != nil {
 		log.Panicln(err)
 	}
+
+	doorChannels = make(map[int64]*chan bool)
 }
 
 func (s *grpcServer) UpdateState(ctx context.Context, in *doorservicepb.UpdateStateRequest) (*doorservicepb.UpdateStateResponse, error) {
@@ -44,10 +46,13 @@ func (s *grpcServer) UpdateState(ctx context.Context, in *doorservicepb.UpdateSt
 }
 
 func (s *grpcServer) AccessStream(in *doorservicepb.AccessStreamRequest, streamServer doorservicepb.DoorService_AccessStreamServer) error {
-	doorChannels[in.Serial] = new(chan bool)
+	doorChannel := make(chan bool, 1)
+	doorChannels[in.Serial] = &doorChannel
+	log.Printf("door %d connected", in.Serial)
 	for {
 		<-*(doorChannels[in.Serial])
 		err := streamServer.Send(&doorservicepb.AccessStreamResponse{OpenDoor: true})
+		log.Printf("sending open command to door %d", in.Serial)
 		if err != nil {
 			log.Println(err)
 			return err
